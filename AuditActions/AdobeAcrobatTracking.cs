@@ -11,16 +11,16 @@ namespace AuditActions
 {
 	internal class AdobeAcrobatTracking
 	{
-		static string CurrentPDF { get; set; }
+		static AcrobatTracker AT = new AcrobatTracker();
+		public static string CurrentPDF { get; set; }
 
-	  static Thread winTracker = new Thread(activatorAcrobatTracker);
-
-		static Thread acrobatActionsTracker = new Thread(AcrobatTracker);
+		static Thread winTracker = new Thread(activatorAcrobatTracker);
 		public static void StartAcrobatTracking()
 		{
+			var fs = File.Create(SupportFuncs.logFilePath);
+			fs.Close();
 			winTracker.Start();
 		}
-
 		private static void activatorAcrobatTracker()
 		{
 			while (true)
@@ -28,43 +28,26 @@ namespace AuditActions
 				EnumWindows(delegate (IntPtr hWnd, IntPtr lParam)
 				{
 					hWnd = (IntPtr)GetForegroundWindow();
-					Console.WriteLine(GetWindowText(hWnd));
-					if (acrobatActionsTracker.ThreadState != System.Threading.ThreadState.Running
-						&& GetWindowText(hWnd).Contains("- Adobe Acrobat Reader DC (64-bit)"))
+
+					if (GetWindowText(hWnd).Contains("- Adobe Acrobat Reader DC (64-bit)"))
 					{
 						CurrentPDF = GetWindowText(hWnd).Split('-')[0].Trim();
-						acrobatActionsTracker.Start();
+						AT.startAT(CurrentPDF);
 					}
 					else
 					{
-						if (acrobatActionsTracker.ThreadState == System.Threading.ThreadState.Running)
-							acrobatActionsTracker.Join();
-						acrobatActionsTracker.Interrupt();
+						if (AT.ATrunning)
+						{
+							AT.stopAT();
+							SupportFuncs.writeLog("Завершено отслеживание файла " + CurrentPDF);
+						}
 					}
 					return true;
 				}, IntPtr.Zero);
 			}
 		}
 
-		private static void AcrobatTracker()
-		{
-			while (true)
-			{
-				using (StreamWriter sw = File.AppendText("C:/PolyGo/acrobatLog.txt"))
-				{
-					sw.WriteLine("Начато отслеживание файла " + CurrentPDF + ' ' + DateTime.Now);
-					sw.Close();
-				}
-				if (Console.ReadKey().Equals(ConsoleKey.PrintScreen))
-				{
-					using (StreamWriter sw = File.AppendText("C:/PolyGo/acrobatLog.txt"))
-					{
-						sw.WriteLine("Пользователь нажал printscreen, время: " + DateTime.Now.ToString());
-						sw.Close();
-					}
-				}
-			}
-		}
+		public static bool isPrtSc { get; set; } = false;
 
 		//user32.dll import
 		[return: MarshalAs(UnmanagedType.Bool)]
