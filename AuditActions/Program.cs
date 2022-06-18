@@ -10,6 +10,7 @@ namespace AuditActions
 	{
 		static void Main(string[] args)
 		{
+			AdobeAcrobatTracking.StartAcrobatTracking();
 		}
 	}
 }
