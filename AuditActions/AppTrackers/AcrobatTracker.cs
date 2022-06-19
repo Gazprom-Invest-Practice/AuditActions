@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace AuditActions
+using AuditActions.SupportFuncs;
+
+namespace AuditActions.AppTrackers
 {
 	internal class AcrobatTracker
 	{
@@ -23,10 +20,10 @@ namespace AuditActions
 			acrobatActionsTracker = new Thread(runAcrobatTracker);
 		}
 
-		public void startAT(string PDFname)
+		public void startAT(string windowName)
 		{
-			CurrentPDF = PDFname;
-			if (!isThreadRun)
+      CurrentPDF = windowName.Split('-')[0].Trim();
+      if (!isThreadRun)
 			{
 				acrobatActionsTracker.Start();
 				isThreadRun = true;
@@ -34,7 +31,8 @@ namespace AuditActions
 		}
 		public void stopAT()
 		{
-			isThreadRun = false;
+      AppTrack.writeLog("Завершено отслеживание файла " + CurrentPDF, "acrobat");
+      isThreadRun = false;
 			try
 			{
 				acrobatActionsTracker.Abort();
@@ -42,7 +40,7 @@ namespace AuditActions
 			catch (Exception) { }
 
 			acrobatActionsTracker = new Thread(runAcrobatTracker);
-		}
+    }
 		public bool ATrunning{
 			get
 			{
@@ -51,22 +49,17 @@ namespace AuditActions
 		}
 		private static void runAcrobatTracker()
 		{
-			SupportFuncs.writeLog("Начато отслеживание файла " + CurrentPDF);
-			//while (true)
-			//{
-       _hookID = SetHook(_proc);
-       Application.Run();
-       UnhookWindowsHookEx(_hookID);
-      //}
+			AppTrack.writeLog("Начато отслеживание файла " + CurrentPDF, "acrobat");
+      _hookID = SetHook(_proc);
+      Application.Run();
+        
+      UnhookWindowsHookEx(_hookID);
 		}
 
     private const int WH_KEYBOARD_LL = 13;
     private const int WM_KEYDOWN = 0x0100;
     private static LowLevelKeyboardProc _proc = HookCallback;
     private static IntPtr _hookID = IntPtr.Zero;
-
-    private static string[] RKey = new string[] { "Ф", "Ы", "В", "А", "Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ъ", "П", "Р", "О", " ", "Л", "Д", "Ж", "Э", "Ё", "Я", "Ч", "С", "М", "И", "Т", "Ь", "Б", "Ю", "." };
-    private static string[] EKey = new string[] { "A", "S", "D", "F", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "[", "]", "G", "H", "J", "Space", "K", "L", ";", "'", "`", "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/" };
     private static IntPtr SetHook(LowLevelKeyboardProc proc)
     {
       using (Process curProcess = Process.GetCurrentProcess())
@@ -86,7 +79,7 @@ namespace AuditActions
       {
         int vkCode = Marshal.ReadInt32(lParam);
 
-        if (((Keys)vkCode).ToString() == "PrintScreen") SupportFuncs.writeLog(((Keys)vkCode).ToString());
+        if (((Keys)vkCode).ToString() == "PrintScreen") AppTrack.writeLog(((Keys)vkCode).ToString(), "acrobat");
       }
       return CallNextHookEx(_hookID, nCode, wParam, lParam);
     }
