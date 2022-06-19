@@ -44,11 +44,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AcrobatTracker.cs" />
-    <Compile Include="AdobeAcrobatTracking.cs" />
+    <Compile Include="AppTrackers\AcrobatTracker.cs" />
+    <Compile Include="WinTracker.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SupportFuncs.cs" />
+    <Compile Include="SupportFuncs\AppTrack.cs" />
+    <Compile Include="SupportFuncs\Input.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

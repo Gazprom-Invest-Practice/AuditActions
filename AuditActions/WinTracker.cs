@@ -1,27 +1,23 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Windows.Forms;
 using System;
 using System.Threading;
-using System.IO;
+
+using AuditActions.AppTrackers;
 
 namespace AuditActions
 {
-	internal class AdobeAcrobatTracking
+	internal class WinTracker
 	{
 		static AcrobatTracker AT = new AcrobatTracker();
 		public static string CurrentPDF { get; set; }
 
-		static Thread winTracker = new Thread(activatorAcrobatTracker);
-		public static void StartAcrobatTracking()
+		static Thread winTracker = new Thread(activateAcrobatTracker);
+		public static void StartWinTracking()
 		{
-			var fs = File.Create(SupportFuncs.logFilePath);
-			fs.Close();
 			winTracker.Start();
 		}
-		private static void activatorAcrobatTracker()
+		private static void activateAcrobatTracker()
 		{
 			while (true)
 			{
@@ -29,17 +25,15 @@ namespace AuditActions
 				{
 					hWnd = (IntPtr)GetForegroundWindow();
 
-					if (GetWindowText(hWnd).Contains("- Adobe Acrobat Reader DC (64-bit)"))
+					if (GetWindowText(hWnd).Contains("- Adobe Acrobat"))
 					{
-						CurrentPDF = GetWindowText(hWnd).Split('-')[0].Trim();
-						AT.startAT(CurrentPDF);
+						AT.startAT(GetWindowText(hWnd));
 					}
 					else
 					{
 						if (AT.ATrunning)
 						{
 							AT.stopAT();
-							SupportFuncs.writeLog("Завершено отслеживание файла " + CurrentPDF);
 						}
 					}
 					return true;
