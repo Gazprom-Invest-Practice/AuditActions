@@ -6,7 +6,7 @@ namespace AuditActions
 	using Command = String;
 	internal class Constants
 	{
-		public static string LogPath { get; set; }
+		public static string LogPath { get; set; } = "";
 
 		public static Command[] CmdNames = { "acrobat", "word", "frbd" };
 

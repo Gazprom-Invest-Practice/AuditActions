@@ -80,6 +80,9 @@ namespace AuditActions.AppTrackers
         int vkCode = Marshal.ReadInt32(lParam);
 
         if (((Keys)vkCode).ToString() == "PrintScreen") AppTrack.writeLog(((Keys)vkCode).ToString(), "acrobat");
+        //var image = Clipboard.GetImage();
+        //Directory.CreateDirectory(pathString);
+        //image.Save
       }
       return CallNextHookEx(_hookID, nCode, wParam, lParam);
     }

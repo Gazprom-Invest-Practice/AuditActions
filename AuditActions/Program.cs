@@ -13,7 +13,11 @@ namespace AuditActions
 			FillCommands();
 			try
 			{
-				Constants.LogPath = args[0] + '\\';
+				if (args.Length > 0)
+				{
+					if (args[0] != "default") Constants.LogPath = args[0] + '\\';
+					else Constants.LogPath = "";
+				}
 				for (int i = 1; i < args.Length; ++i)
 				{
 					Input.ReadCommand(args[i]);
