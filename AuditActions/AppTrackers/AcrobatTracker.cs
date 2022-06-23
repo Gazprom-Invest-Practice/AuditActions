@@ -12,6 +12,7 @@ namespace AuditActions.AppTrackers
 	{
 		static bool isThreadRun = false;
 		static string CurrentPDF { get; set; }
+    static string TempPDFname { get; set; }
 
 		static Thread acrobatActionsTracker;
 
@@ -31,7 +32,7 @@ namespace AuditActions.AppTrackers
 		}
 		public void stopAT()
 		{
-      AppTrack.writeLog("Завершено отслеживание файла " + CurrentPDF, "acrobat");
+      AppTrack.writeLog("Завершено отслеживание файла " + TempPDFname, "acrobat");
       isThreadRun = false;
 			try
 			{
@@ -49,7 +50,8 @@ namespace AuditActions.AppTrackers
 		}
 		private static void runAcrobatTracker()
 		{
-			AppTrack.writeLog("Начато отслеживание файла " + CurrentPDF, "acrobat");
+			AppTrack.writeLog(Environment.UserName + ": Начато отслеживание файла " + CurrentPDF, "acrobat");
+      TempPDFname = CurrentPDF;
       _hookID = SetHook(_proc);
       Application.Run();
         
