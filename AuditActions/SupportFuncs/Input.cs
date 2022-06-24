@@ -25,5 +25,10 @@ namespace AuditActions.SupportFuncs
 		{
 			Program.DebugMode = true;
 		}
+
+		public static void turnOnForbiddenMode(string notUse)
+		{
+			Program.ForbiddenMode = true;
+		}
 	}
 }

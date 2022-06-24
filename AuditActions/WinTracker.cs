@@ -40,7 +40,6 @@ namespace AuditActions
 				}, IntPtr.Zero);
 			}
 		}
-
 		public static bool isPrtSc { get; set; } = false;
 
 		//user32.dll import

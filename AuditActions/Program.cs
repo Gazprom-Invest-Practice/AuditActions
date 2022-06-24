@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 using AuditActions.SupportFuncs;
@@ -8,6 +9,7 @@ namespace AuditActions
 	internal class Program
 	{
 		public static bool DebugMode { get; set; } = false;
+		public static bool ForbiddenMode { get; set; } = false;
 		static void Main(string[] args)
 		{
 			FillCommands();
@@ -44,6 +46,9 @@ namespace AuditActions
 
 			cfwp = Input.turnOnDebugMode;
 			Constants.Commands.Add("debug", cfwp);
+
+			cfwp = Input.turnOnForbiddenMode;
+			Constants.Commands.Add("frbd", cfwp);
 		}
 
 		[DllImport("kernel32.dll")]

@@ -1,80 +1,61 @@
-﻿using System;
+﻿using AuditActions.SupportFuncs;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using AuditActions.SupportFuncs;
+using System.Windows.Input;
 
 namespace AuditActions.AppTrackers
 {
-	internal class AcrobatTracker
-	{
-    static KeyTracker KT = new KeyTracker();
-
-		static bool isThreadRun = false;
-		static string CurrentPDF { get; set; }
-    static string TempPDFname { get; set; }
-
-		static Thread acrobatActionsTracker;
-
-		public AcrobatTracker()
-		{
-			acrobatActionsTracker = new Thread(runAcrobatTracker);
-		}
-
-		public void startAT(string windowName)
-		{
-      CurrentPDF = windowName.Split('-')[0].Trim();
-      if (!isThreadRun)
-			{
-				acrobatActionsTracker.Start();
-				isThreadRun = true;
-			}
-		}
-		public void stopAT()
-		{
-      AppTrack.writeLog("Завершено отслеживание файла " + TempPDFname, "acrobat");
-      isThreadRun = false;
-			try
-			{
-        KT.stopKT();
-				acrobatActionsTracker.Abort();
-			}
-			catch (Exception) { }
-
-			acrobatActionsTracker = new Thread(runAcrobatTracker);
-    }
-		public bool ATrunning
+  internal class KeyTracker
+  {
+    static bool isThreadRun = false;
+    static Thread keyPressTracker;
+    public KeyTracker()
     {
-			get
-			{
-				return acrobatActionsTracker.IsAlive;
-			}
-		}
-		private static void runAcrobatTracker()
-		{
-      KT.startKT();
-			AppTrack.writeLog(Environment.UserName + ": Начато отслеживание файла " + CurrentPDF, "acrobat");
-      TempPDFname = CurrentPDF;
+      keyPressTracker = new Thread(runKeyTracker);
+    }
 
-      while(true)
-			{
-				var remoteEventLogs = EventLog.GetEventLogs(Environment.MachineName);
+    public void startKT()
+    {
+      if (!isThreadRun)
+      {
+        keyPressTracker.SetApartmentState(ApartmentState.STA);
+        keyPressTracker.Start();
+        isThreadRun = true;
+      }
+    }
+    public void stopKT()
+    {
+      isThreadRun = false;
+      try
+      {
+        UnhookWindowsHookEx(_hookID);
+        keyPressTracker.Abort();
+      }
+      catch (Exception) { }
 
-				//Console.WriteLine("Number of logs on computer: " + remoteEventLogs.Length);
+      keyPressTracker = new Thread(runKeyTracker);
+    }
+    public bool KTrunning
+    {
+      get
+      {
+        return keyPressTracker.IsAlive;
+      }
+    }
+    private static void runKeyTracker()
+    {
+      _hookID = SetHook(_proc);
+      Application.Run();
 
-				foreach (EventLog log in remoteEventLogs)
-				{
-					if(log.Log.Contains("Key"))
-					{
-            foreach(var l in log.Entries)
-						{
-              Console.WriteLine(l);
-            }
-					}
-				}
-			}
+      UnhookWindowsHookEx(_hookID);
     }
 
     private const int WH_KEYBOARD_LL = 13;
@@ -100,10 +81,28 @@ namespace AuditActions.AppTrackers
       {
         int vkCode = Marshal.ReadInt32(lParam);
 
-        if (((Keys)vkCode).ToString() == "PrintScreen") AppTrack.writeLog(((Keys)vkCode).ToString(), "acrobat");
-        //var image = Clipboard.GetImage();
-        //Directory.CreateDirectory(pathString);
-        //image.Save
+        if (((Keys)vkCode).ToString() == "PrintScreen")
+        {
+          if (Program.ForbiddenMode)
+          {
+            AppTrack.writeLog(((Keys)vkCode).ToString() + " was cancelled", "acrobat");
+            return (IntPtr)1;
+          }
+          AppTrack.writeLog(((Keys)vkCode).ToString(), "acrobat");
+        }
+
+        if((Control.ModifierKeys & Keys.Control) == Keys.Control)
+        {
+          if (((Keys)vkCode).ToString() == "S")
+          {
+            if (Program.ForbiddenMode)
+            {
+              AppTrack.writeLog("Saving by CTRL + S was cancelled", "acrobat");
+              return (IntPtr)1;
+            }
+            AppTrack.writeLog("Saving by CTRL + S", "acrobat");
+          }
+        }
       }
       return CallNextHookEx(_hookID, nCode, wParam, lParam);
     }
