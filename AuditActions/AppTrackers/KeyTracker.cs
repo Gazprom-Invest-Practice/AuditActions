@@ -95,12 +95,21 @@ namespace AuditActions.AppTrackers
         {
           if (((Keys)vkCode).ToString() == "S")
           {
-            if (Program.ForbiddenMode)
+            //CTRL + SHIFT + S
+            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
             {
-              AppTrack.writeLog("Saving by CTRL + S was cancelled", "acrobat");
-              return (IntPtr)1;
+              AppTrack.writeLog("CTRL + SHIFT + S", "acrobat");
             }
-            AppTrack.writeLog("Saving by CTRL + S", "acrobat");
+            else
+            {
+              //CTRL + S
+              if (Program.ForbiddenMode)
+              {
+                AppTrack.writeLog("Saving by CTRL + S was cancelled", "acrobat");
+                return (IntPtr)1;
+              }
+              AppTrack.writeLog("Saving by CTRL + S", "acrobat");
+            }
           }
         }
       }

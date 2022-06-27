@@ -4,6 +4,8 @@ using System;
 using System.Threading;
 
 using AuditActions.AppTrackers;
+using System.Collections.Generic;
+using AuditActions.SupportFuncs;
 
 namespace AuditActions
 {
@@ -13,19 +15,23 @@ namespace AuditActions
 		public static string CurrentPDF { get; set; }
 
 		static Thread winTracker = new Thread(activateAcrobatTracker);
+
+		public static List<string> printQueue = new List<string>();
 		public static void StartWinTracking()
 		{
 			winTracker.Start();
 		}
 		private static void activateAcrobatTracker()
 		{
+			AppTrack.fillPrintQueue(ref printQueue);
 			while (true)
 			{
 				EnumWindows(delegate (IntPtr hWnd, IntPtr lParam)
 				{
 					hWnd = (IntPtr)GetForegroundWindow();
 
-					if (GetWindowText(hWnd).Contains("- Adobe Acrobat"))
+					if (GetWindowText(hWnd).Contains("- Adobe Acrobat") 
+					|| GetWindowText(hWnd).Contains("Печать") || GetWindowText(hWnd).Contains("Выполнение"))
 					{
 						AT.startAT(GetWindowText(hWnd));
 					}
