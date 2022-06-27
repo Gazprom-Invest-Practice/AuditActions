@@ -42,7 +42,6 @@ namespace AuditActions
 		{
 			Constants.cmdFuncWithParam cfwp = Input.createLogFile;
 			Constants.Commands.Add("acrobat", cfwp);
-			Constants.Commands.Add("word", cfwp);
 
 			cfwp = Input.turnOnDebugMode;
 			Constants.Commands.Add("debug", cfwp);
