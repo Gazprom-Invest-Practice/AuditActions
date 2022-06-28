@@ -30,5 +30,10 @@ namespace AuditActions.SupportFuncs
 		{
 			Program.ForbiddenMode = true;
 		}
+
+		public static void turnOnPrintTracking(string notUse)
+		{
+			Program.PrintTrackMode = true;
+		}
 	}
 }

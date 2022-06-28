@@ -14,7 +14,7 @@ namespace AuditActions.AppTrackers
 {
 	internal class AcrobatTracker
 	{
-    static KeyTracker KT = new KeyTracker();
+    //static KeyTracker KT = new KeyTracker();
 
 		static bool isThreadRun = false;
 		static string CurrentPDF { get; set; }
@@ -29,7 +29,8 @@ namespace AuditActions.AppTrackers
 
 		public void startAT(string windowName)
 		{
-      if(!windowName.Contains("Печать") && !windowName.Contains("Выполнение")) CurrentPDF = windowName.Split('-')[0].Trim();
+			KeyTracker.mode = KeyTracker.KTmode.Acrobat;
+			if (!windowName.Contains("Печать") && !windowName.Contains("Выполнение")) CurrentPDF = windowName.Split('-')[0].Trim();
       if (!isThreadRun)
 			{
 				acrobatActionsTracker.Start();
@@ -39,10 +40,10 @@ namespace AuditActions.AppTrackers
 		public void stopAT()
 		{
       AppTrack.writeLog("Завершено отслеживание файла " + TempPDFname, "acrobat");
-      isThreadRun = false;
+			KeyTracker.mode = KeyTracker.KTmode.Win;
+			isThreadRun = false;
 			try
 			{
-        KT.stopKT();
 				acrobatActionsTracker.Abort();
 			}
 			catch (Exception) { }
@@ -58,19 +59,21 @@ namespace AuditActions.AppTrackers
 		}
 		private static void runAcrobatTracker()
 		{
-      KT.startKT();
 			AppTrack.writeLog(Environment.UserName + ": Начато отслеживание файла " + CurrentPDF, "acrobat");
       TempPDFname = CurrentPDF;
 
 			while (true)
 			{
-				var tempPrintQueue = new List<string>();
-				AppTrack.fillPrintQueue(ref tempPrintQueue);
-
-				if(WinTracker.printQueue.Count != tempPrintQueue.Count)
+				if (Program.PrintTrackMode)
 				{
-					AppTrack.writeLog("Print", "acrobat");
-					WinTracker.printQueue = tempPrintQueue;
+					var tempPrintQueue = new List<string>();
+					AppTrack.fillPrintQueue(ref tempPrintQueue);
+
+					if (WinTracker.printQueue.Count != tempPrintQueue.Count)
+					{
+						AppTrack.writeLog("Print", "acrobat");
+						WinTracker.printQueue = tempPrintQueue;
+					}
 				}
 			}
     }
