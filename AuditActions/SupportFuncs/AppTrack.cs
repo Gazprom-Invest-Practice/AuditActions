@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Printing;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace AuditActions.SupportFuncs
 {
@@ -28,10 +29,13 @@ namespace AuditActions.SupportFuncs
 		public static void fillPrintQueue(ref List<string> pq)
 		{
 			bool flag = true;
+			int maxCount = 50;
+			int counter = 0;
+
 			LocalPrintServer server = new LocalPrintServer();
 			try
 			{
-				while (flag)
+				while (flag && counter < maxCount)
 				{
 					string[] dirs = Directory.GetFiles(@"C:\Windows\System32\spool\PRINTERS");
 
@@ -44,12 +48,14 @@ namespace AuditActions.SupportFuncs
 							flag = false;
 						}
 					}
+					++counter;
 				}
 			}
 			catch (UnauthorizedAccessException)
 			{
 				writeLog("You must run application with administrator rights to track the print queue. Program was stopped."
 						, "acrobat");
+				Environment.Exit(1);
 			}
 		}
 	}

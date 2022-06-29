@@ -1,22 +1,19 @@
 ﻿using AuditActions.SupportFuncs;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Input;
 
 namespace AuditActions.AppTrackers
 {
-  internal class KeyTracker
+	internal class KeyTracker
   {
-    static bool isThreadRun = false;
-    static Thread keyPressTracker;
+    bool isThreadRun = false;
+    Thread keyPressTracker;
+
+    public static KTmode mode { get; set; } = KTmode.Win;
+  
     public KeyTracker()
     {
       keyPressTracker = new Thread(runKeyTracker);
@@ -81,34 +78,56 @@ namespace AuditActions.AppTrackers
       {
         int vkCode = Marshal.ReadInt32(lParam);
 
-        if (((Keys)vkCode).ToString() == "PrintScreen")
+        if (mode == KTmode.Acrobat)
         {
-          if (Program.ForbiddenMode)
+          if (((Keys)vkCode).ToString() == "PrintScreen")
           {
-            AppTrack.writeLog(((Keys)vkCode).ToString() + " was cancelled", "acrobat");
-            return (IntPtr)1;
+            if (Program.ForbiddenMode)
+            {
+              AppTrack.writeLog(((Keys)vkCode).ToString() + " was cancelled", "acrobat");
+              return (IntPtr)1;
+            }
+            AppTrack.writeLog(((Keys)vkCode).ToString(), "acrobat");
           }
-          AppTrack.writeLog(((Keys)vkCode).ToString(), "acrobat");
+
+          if ((Control.ModifierKeys & Keys.Control) == Keys.Control)
+          {
+            if (((Keys)vkCode).ToString() == "S")
+            {
+              //CTRL + SHIFT + S
+              if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+              {
+                AppTrack.writeLog("CTRL + SHIFT + S", "acrobat");
+              }
+              else
+              {
+                //CTRL + S
+                if (Program.ForbiddenMode)
+                {
+                  AppTrack.writeLog("Saving by CTRL + S was cancelled", "acrobat");
+                  return (IntPtr)1;
+                }
+                AppTrack.writeLog("Saving by CTRL + S", "acrobat");
+              }
+            }
+          }
+
+          if ((Control.ModifierKeys & Keys.Control) == Keys.Control && (Control.ModifierKeys & Keys.Alt) == Keys.Alt)
+          {
+            if (((Keys)vkCode).ToString() == "Space")
+            {
+              Environment.Exit(1);
+            }
+          }
         }
 
-        if((Control.ModifierKeys & Keys.Control) == Keys.Control)
+        else if (mode == KTmode.Win)
         {
-          if (((Keys)vkCode).ToString() == "S")
+          if ((Control.ModifierKeys & Keys.Control) == Keys.Control && (Control.ModifierKeys & Keys.Alt) == Keys.Alt)
           {
-            //CTRL + SHIFT + S
-            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+            if (((Keys)vkCode).ToString() == "Space")
             {
-              AppTrack.writeLog("CTRL + SHIFT + S", "acrobat");
-            }
-            else
-            {
-              //CTRL + S
-              if (Program.ForbiddenMode)
-              {
-                AppTrack.writeLog("Saving by CTRL + S was cancelled", "acrobat");
-                return (IntPtr)1;
-              }
-              AppTrack.writeLog("Saving by CTRL + S", "acrobat");
+              Environment.Exit(1);
             }
           }
         }
@@ -130,5 +149,11 @@ namespace AuditActions.AppTrackers
 
     [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+    public enum KTmode
+		{
+      Win,
+      Acrobat
+		}
   }
 }

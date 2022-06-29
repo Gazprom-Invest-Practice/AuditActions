@@ -2,9 +2,9 @@
 using System.Text;
 using System;
 using System.Threading;
+using System.Collections.Generic;
 
 using AuditActions.AppTrackers;
-using System.Collections.Generic;
 using AuditActions.SupportFuncs;
 
 namespace AuditActions
@@ -12,6 +12,7 @@ namespace AuditActions
 	internal class WinTracker
 	{
 		static AcrobatTracker AT = new AcrobatTracker();
+		public static KeyTracker KT = new KeyTracker();
 		public static string CurrentPDF { get; set; }
 
 		static Thread winTracker = new Thread(activateAcrobatTracker);
@@ -23,7 +24,9 @@ namespace AuditActions
 		}
 		private static void activateAcrobatTracker()
 		{
-			AppTrack.fillPrintQueue(ref printQueue);
+			if (Program.PrintTrackMode) AppTrack.fillPrintQueue(ref printQueue);
+			KT.startKT();
+
 			while (true)
 			{
 				EnumWindows(delegate (IntPtr hWnd, IntPtr lParam)

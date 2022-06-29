@@ -8,13 +8,10 @@ namespace AuditActions
 	{
 		public static string LogPath { get; set; } = "";
 
-		public static Command[] CmdNames = { "acrobat", "word", "frbd" };
-
 		public static Dictionary<Command, cmdFuncWithParam> Commands = new Dictionary<Command, cmdFuncWithParam>();
 
 		//Support
 		public delegate void cmdFuncWithParam(string appName);
 		public delegate void cmdFunc();
-
 	}
 }
