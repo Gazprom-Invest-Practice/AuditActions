@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 using AuditActions.SupportFuncs;
@@ -41,10 +40,9 @@ namespace AuditActions
 		}
 		private static void FillCommands()
 		{
-			Constants.cmdFuncWithParam cfwp = Input.createLogFile;
-			Constants.Commands.Add("acrobat", cfwp);
+			Input.createLogFile("acrobat");
 
-			cfwp = Input.turnOnDebugMode;
+			Constants.cmdFuncWithParam cfwp = Input.turnOnDebugMode;
 			Constants.Commands.Add("debug", cfwp);
 
 			cfwp = Input.turnOnForbiddenMode;

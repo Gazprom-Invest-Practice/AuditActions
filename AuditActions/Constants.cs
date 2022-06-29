@@ -13,6 +13,5 @@ namespace AuditActions
 		//Support
 		public delegate void cmdFuncWithParam(string appName);
 		public delegate void cmdFunc();
-
 	}
 }

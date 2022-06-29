@@ -14,8 +14,6 @@ namespace AuditActions.AppTrackers
 {
 	internal class AcrobatTracker
 	{
-    //static KeyTracker KT = new KeyTracker();
-
 		static bool isThreadRun = false;
 		static string CurrentPDF { get; set; }
     static string TempPDFname { get; set; }
