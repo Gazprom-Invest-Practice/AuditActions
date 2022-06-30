@@ -13,7 +13,6 @@ namespace AuditActions
 	{
 		static AcrobatTracker AT = new AcrobatTracker();
 		public static KeyTracker KT = new KeyTracker();
-		public static string CurrentPDF { get; set; }
 
 		static Thread winTracker = new Thread(activateAcrobatTracker);
 
@@ -49,7 +48,6 @@ namespace AuditActions
 				}, IntPtr.Zero);
 			}
 		}
-		public static bool isPrtSc { get; set; } = false;
 
 		//user32.dll import
 		[return: MarshalAs(UnmanagedType.Bool)]

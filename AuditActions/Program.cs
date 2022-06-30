@@ -20,6 +20,7 @@ namespace AuditActions
 					if (args[0].ToLower() != "default") Constants.LogPath = args[0] + '\\';
 					else Constants.LogPath = "";
 				}
+
 				for (int i = 1; i < args.Length; ++i)
 				{
 					Input.ReadCommand(args[i].ToLower());
@@ -31,6 +32,7 @@ namespace AuditActions
 					ShowWindow(handle, SW_HIDE);
 				}
 
+				Input.createLogFile("acrobat");
 				WinTracker.StartWinTracking();
 			}
 			catch (Exception ex)
@@ -40,8 +42,6 @@ namespace AuditActions
 		}
 		private static void FillCommands()
 		{
-			Input.createLogFile("acrobat");
-
 			Constants.cmdFuncWithParam cfwp = Input.turnOnDebugMode;
 			Constants.Commands.Add("debug", cfwp);
 
