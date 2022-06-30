@@ -116,6 +116,10 @@ namespace AuditActions.AppTrackers
           {
             if (((Keys)vkCode).ToString() == "Space")
             {
+              foreach (var process in Process.GetProcessesByName("AuditActions.exe"))
+              {
+                process.Kill();
+              }
               Environment.Exit(1);
             }
           }
@@ -127,6 +131,10 @@ namespace AuditActions.AppTrackers
           {
             if (((Keys)vkCode).ToString() == "Space")
             {
+              foreach (var process in Process.GetProcessesByName("AuditActions.exe"))
+              {
+                process.Kill();
+              }
               Environment.Exit(1);
             }
           }
